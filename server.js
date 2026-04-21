@@ -1,12 +1,10 @@
+import express from "express";
+import puppeteer from "puppeteer";
 import cors from "cors";
-app.use(cors());
 
-console.log("INICIANDO SERVIDOR...");
-S
-const express = require("express");
-const puppeteer = require("puppeteer");
+const app = express(); // ✅ primeiro cria o app
 
-const app = express();
+app.use(cors());       // ✅ depois usa
 app.use(express.json());
 
 console.log("SERVIDOR INICIANDO...");
