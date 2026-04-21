@@ -1,22 +1,31 @@
 import express from "express";
-import puppeteer from "puppeteer";
 import cors from "cors";
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 
-const app = express(); // ✅ primeiro cria o app
+const app = express();
 
-app.use(cors());       // ✅ depois usa
+app.use(cors());
 app.use(express.json());
-
-console.log("SERVIDOR INICIANDO...");
 
 app.post("/generate-pdf", async (req, res) => {
   const { url } = req.body;
 
   try {
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox"]
-    });
+    const isProd = process.env.NODE_ENV === "production";
+
+    const browser = await puppeteer.launch(
+      isProd
+        ? {
+            args: chromium.args,
+            executablePath: await chromium.executablePath,
+            headless: chromium.headless,
+          }
+        : {
+            headless: "new",
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+          }
+    );
 
     const page = await browser.newPage();
 
@@ -40,6 +49,8 @@ app.post("/generate-pdf", async (req, res) => {
   }
 });
 
-app.listen(3001, () => {
-  console.log("Rodando em http://localhost:3001");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Rodando na porta ${PORT}`);
 });
